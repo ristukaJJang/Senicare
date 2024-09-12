@@ -1,6 +1,10 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import './style.css';
 import InputBox from 'src/components/InputBox';
+import axios from 'axios';
+import { idCheckRequest, telAuthRequest } from 'src/apis';
+import { IdCheckRequestDto, TelAuthRequestDto } from 'src/apis/dto/request/auth';
+import { ResponseDto } from 'src/apis/dto/response';
 
 type AuthPath = '회원가입' | '로그인';
 interface SnsContainerProps {
@@ -52,9 +56,42 @@ function SignUp({onPathChange}: AuthComponentProps) {
   const [isCheckedAuthNumber, setCheckedAuthNumber] = useState<boolean>(false);
   const [isMatchedPassword, setMatchedPassword] = useState<boolean>(false);
 
+  // variable: 회원 가입 가능 여부 //
   const isComplete = name && id && isCheckidId && password && passwordCheck && isCheckedPassword && 
   telNumber && isSend && authNumber && isCheckedAuthNumber && isMatchedPassword; 
 
+  // function: 아이디 중복 확인 Response 처리 함수 //
+  const idCheckResponse = (responseBody: ResponseDto | null)=> {
+    const message = 
+      !responseBody ? '서버에 문제가 있습니다.' :
+      responseBody.code === 'VF' ? '올바른 데이터가 아닙니다.' :
+      responseBody.code === 'DI' ? '이미 사용 중인 아이디입니다.' :
+      responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
+      responseBody.code === 'SU' ? '사용 가능한 아이디입니다.' : '';
+
+    const isSuccessed = responseBody !== null && responseBody.code === 'SU';
+    setIdMessage(message);
+    setIdMessageError(!isSuccessed);
+    setCheckedId(isSuccessed);
+  }
+
+  // function: 전화번호 인증 response 처리 함수 //
+  const telAuthResponse = (responseBody: ResponseDto | null) => {
+    const message = 
+      !responseBody ? '서버에 문제가 있습니다.' :
+      responseBody.code === 'VF' ? '숫자 11자 입력해주세요.' :
+      responseBody.code === 'DT' ? '중복된 전화번호입니다.' :
+      responseBody.code === 'TF' ? '서버에 문제가 있습니다.' :
+      responseBody.code === 'DBE' ? '서버에 문제가 있습니다' :
+      responseBody.code === 'SU' ? '인증번호가 전송되었습니다.' : '';
+
+    const isSuccessed = responseBody !== null && responseBody.code === 'SU';
+    setTelNumberMessage(message);
+    setTelNumberCheckMessageError(!isSuccessed);
+    setSend(isSuccessed);
+  };
+
+  // event Handler: 이름 변경 이벤트 처리 //
   const onNameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const {value} = event.target;
     setName(value);
@@ -105,16 +142,17 @@ function SignUp({onPathChange}: AuthComponentProps) {
     setAuthNumberMessage('');
   };
 
+  // event Handler: 중복 확인 버튼 클릭 이벤트 처리 //
   const onIdcheckClickHandler = () => {
     if(!id) return;
 
-    const isDuplicated = (id === 'qwer1234');
-    const message = isDuplicated ? '이미 사용 중인 아이디입니다.' : '사용 가능한 아이디 입니다.';
-    setIdMessage(message);
-    setIdMessageError(isDuplicated);
-    setCheckedId(!isDuplicated);
+    const requestBody: IdCheckRequestDto = {
+      userId: id
+    };
+    idCheckRequest(requestBody).then(idCheckResponse);
   };
 
+  // event Handler: 전화번호 인증 버튼 클릭 이벤트 처리 //
   const onTelNumberSendClickHandler = () => {
     if(!telNumber) return;
 
@@ -126,12 +164,12 @@ function SignUp({onPathChange}: AuthComponentProps) {
       setTelNumberCheckMessageError(true);
       return;
     }
-    setTelNumberMessage('인증번호가 전송되었습니다.');
-    setTelNumberCheckMessageError(false);
-    setSend(true)
-    
+
+    const requestBody: TelAuthRequestDto = {telNumber};
+    telAuthRequest(requestBody).then(telAuthResponse);  
   };
 
+  // event Handler: 인증 확인 버튼 클릭 이벤트 처리 //
   const onAuthNumberCheckClickHandler = () => {
     if(!authNumber) return;
     
@@ -201,6 +239,7 @@ function SignUp({onPathChange}: AuthComponentProps) {
   )
 }
 
+// component: 회원가입 컴포넌트 //
 function SignIn({onPathChange}: AuthComponentProps) {
 
   const [id, setId] = useState<string>('');
@@ -251,13 +290,18 @@ function SignIn({onPathChange}: AuthComponentProps) {
   );
 }
 
+// component: 인증 화면 컴포넌트 //
 export default function Auth() {
 
+  // state: 선택 화면 상태 //
   const [path, setPath] = useState<AuthPath>('로그인');
+
+  // event Handler: 화면 변경 이벤트 처리 //
   const onPathChangeHandler = (path: AuthPath) => {
     setPath(path);
   };
 
+  // render: 인증 화면 컴포넌트 렌더링 //
   return (
     <div id="auth-wrapper">
       <div className="auth-image"></div>
