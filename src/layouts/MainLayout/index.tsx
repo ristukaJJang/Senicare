@@ -39,7 +39,6 @@ function Top() {
   // event Handler: 로그아웃 버튼 클릭 이벤트 처리 //
   const onLogoutButtonClickHandler = () => {
     removeCookie(ACCESS_TOKEN, {path:ROOT_ABSOLUTE_PATH});
-    //navigator(CS_DETAIL_PATH(10));
     navigator(ROOT_ABSOLUTE_PATH);
   };
 
