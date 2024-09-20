@@ -4,6 +4,8 @@ import { ResponseDto } from "./dto/response";
 import TelAuthCheckRequestDto from "./dto/request/auth/tel-auth-check.request.dto";
 import { SignInResponseDto } from "./dto/response/auth";
 import { GetSignInResponseDto } from "./dto/response/nurse";
+import { PostToolRequestDto } from "./dto/request/tool";
+import { GetToolListResponseDto } from "./dto/response/tool";
 
 // variable: api url 상수//
 const SENICARE_API_DOMAIN = 'http://localhost:4000';
@@ -18,6 +20,10 @@ const SIGN_IN_API_URL = `${AUTH_MODULE_URL}/sign-in`;
 
 const NURSE_MODUL_URL = `${SENICARE_API_DOMAIN}/api/v1/nurse`;
 const GET_SIGN_IN_API_URL = `${NURSE_MODUL_URL}/sign-in`;
+
+const TOOL_MODULE_URL = `${SENICARE_API_DOMAIN}/api/v1/tool`;
+const POST_TOOL_API_URL = `${TOOL_MODULE_URL}`;
+const GET_TOOL_LIST_API_URL = `${TOOL_MODULE_URL}`;
 
 // function: Authorization Bearer 헤더값 //
 const bearerAuthorization = (accessToken: String) => ({headers: {'Authorization': `Bearer ${accessToken}`}});
@@ -81,4 +87,21 @@ export const getSignInRequest = async(accessToken: string) => {
         .then(responseDataHandler<GetSignInResponseDto>)
         .catch(responseErrorHandler);
     return responseBody;
+}
+
+// function: post tool 요청 함수 //
+export const postToolRequest = async(requestBody: PostToolRequestDto, accessToken: string) => {
+    const responseBody = await axios.post(POST_TOOL_API_URL, requestBody, bearerAuthorization(accessToken))
+        .then(responseDataHandler<ResponseDto>)
+        .catch(responseErrorHandler);
+    return responseBody;
+}
+
+// function: get tool list 요청 함수 //
+export const getToolListRequest = async(accessToken: string) => {
+    const responseBody = await axios.get(GET_TOOL_LIST_API_URL, bearerAuthorization(accessToken))
+        .then(responseDataHandler<GetToolListResponseDto>)
+        .catch(responseErrorHandler);
+    return responseBody;
+
 }

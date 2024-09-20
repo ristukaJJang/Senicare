@@ -1,0 +1,66 @@
+#mm-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#mm-wrapper .post-patch-box {
+    display: flex;
+    gap: 16px;
+    align-items: end;
+
+    border-radius: 8px;
+    border: 1px solid rgba(238, 238, 238, 1);
+    padding: 24px;
+    background-color: white;
+}
+
+#mm-wrapper .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+
+#mm-wrapper .top-text {
+    font-size: 16px;
+    font-weight: 400;
+    color: rgba(138, 146, 166, 1);
+}
+
+#mm-wrapper .top-text .emphasis {
+    color: rgba(64, 64, 64, 1);
+}
+
+#mm-wrapper .main {
+    display: flex;
+    flex-direction: column;
+
+    border-radius: 8px;
+    border: 1px solid rgba(238, 238, 238, 1);
+    background-color: white;
+}
+
+#mm-wrapper .bottom {
+    display: flex;
+    justify-content: center;
+}
+
+#mm-wrapper .post-patch-input-container {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+
+}
+
+#mm-wrapper .input-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 200px;
+}
+
+#mm-wrapper .input-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(64, 64, 64, 1);
+}
