@@ -130,3 +130,135 @@
 .hr-active-icon {
     background-image: url(/public/images/hr-active-icon.png);
 }
+
+#main-wrapper .table{
+    display: flex;
+    flex-direction: column;
+
+    border-radius: 8px;
+    border: 1px solid rgba(238, 238, 238, 1);
+
+    background-color: white;
+}
+
+#main-wrapper .th{
+    display: flex;
+    gap: 80px;
+    padding: 15px 24px;
+    color: black;
+    font: 16px;
+    font-weight: 700;
+}
+
+#main-wrapper .tr {
+    display: flex;
+    gap: 80px;
+    border-top: 1px solid rgba(238, 238, 238, 1);
+    padding: 15px 24px;
+    color: black;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+/********************************** main 내부 스타일 *************************************/
+
+#mm-wrapper,
+#cs-wrapper,
+#hr-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 1134px;
+}
+
+#mm-wrapper .top,  
+#cs-wrapper .top,
+#hr-wrapper .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+
+#mm-wrapper .main,
+#cs-wrapper .main,
+#hr-wrapper .main {
+    display: flex;
+    flex-direction: column;
+
+    border-radius: 8px;
+    border: 1px solid rgba(238, 238, 238, 1);
+    background-color: white;
+}
+
+#mm-wrapper .bottom,
+#cs-wrapper .bottom, 
+#hr-wrapper .bottom {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+#mm-wrapper .top-text,
+#cs-wrapper .top-text,
+#hr-wrapper .top-text {
+    font-size: 16px;
+    font-weight: 400;
+    color: rgba(138, 146, 166, 1);
+}
+
+#mm-wrapper .top-text .emphasis,
+#cs-wrapper .top-text .emphasis,
+#hr-wrapper .top-text .emphasis {
+    color: rgba(64, 64, 64, 1);
+}
+
+#mm-wrapper .button.disable:hover,
+#hr-wrapper .button.disable:hover,
+#cs-wrapper .button.disable:hover {
+    cursor:pointer;
+}
+
+#mm-wrapper .td-buttons,
+#hr-wrapper .td-buttons,
+#cs-wrapper .td-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+#mm-wrapper .td-edit,
+#mm-wrapper .td-delete,
+#hr-wrapper .td-edit,
+#hr-wrapper .td-delete,
+#cs-wrapper .td-edit,
+#cs-wrapper .td-delete {
+    display: flex;
+    justify-content: center;
+    width: 80px;
+}
+
+#mm-wrapper .search-box,
+#hr-wrapper .search-box,
+#cs-wrapper .search-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: absolute;
+    right: 0;
+}
+
+#mm-wrapper .search-input,
+#hr-wrapper .search-input,
+#cs-wrapper .search-input {
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid rgba(238, 238, 238, 1);
+    padding: 8px 16px;
+    outline: none;
+
+    font-family: Inter;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 175%;
+}
