@@ -119,8 +119,8 @@ export default function Senicare() {
       <Route path={CS_PATH} element={<MainLayout/>}>
         <Route index element={<CS />} />
         <Route path={CS_WRITE_PATH} element={<CSWrite />}/>
-        <Route path={CS_DETAIL_PATH(':customNumber')} element={<CSDetail />}/>
-        <Route path={CS_UPDATE_PATH(':customNumber')} element={<CSUpdate />}/>
+        <Route path={CS_DETAIL_PATH(':customerNumber')} element={<CSDetail />}/>
+        <Route path={CS_UPDATE_PATH(':customerNumber')} element={<CSUpdate />}/>
       </Route>
 
       <Route path={MM_PATH} element={<MainLayout/>}>

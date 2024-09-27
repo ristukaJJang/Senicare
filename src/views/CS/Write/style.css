@@ -122,6 +122,9 @@
 }
 
 #cs-write-wrapper .modal-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     margin-top: 20px;
     margin-bottom: 40px;
 }
@@ -129,6 +132,10 @@
 #cs-write-wrapper .modal-main .th,
 #cs-write-wrapper .modal-main .tr {
     gap: 52px;
+}
+
+#cs-write-wrapper .modal-main .tr {
+    cursor: pointer;
 }
 
 #cs-write-wrapper .modal-main .td-nurse-id,
@@ -154,4 +161,9 @@
 #cs-write-wrapper .modal-bottom .button {
     box-sizing: border-box; 
     width: 200px;
+}
+
+#cs-write-wrapper .modal-pagination-box {
+    display: flex;
+    justify-content: center;
 }

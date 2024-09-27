@@ -3,9 +3,11 @@ import { IdCheckRequestDto, SignInRequestDto, SignUpRequestDto, TelAuthRequestDt
 import { ResponseDto } from "./dto/response";
 import TelAuthCheckRequestDto from "./dto/request/auth/tel-auth-check.request.dto";
 import { SignInResponseDto } from "./dto/response/auth";
-import { GetSignInResponseDto } from "./dto/response/nurse";
+import { GetNurseListResponseDto, GetSignInResponseDto } from "./dto/response/nurse";
 import { PatchToolRequestDto, PostToolRequestDto } from "./dto/request/tool";
 import { GetToolListResponseDto, GetToolResponseDto } from "./dto/response/tool";
+import { PostCustomerRequestDto } from "./dto/request/customer";
+import { GetCustomerResponseDto } from "./dto/response/customer";
 
 // variable: api url 상수//
 const SENICARE_API_DOMAIN = 'http://localhost:4000';
@@ -19,6 +21,7 @@ const SIGN_UP_API_URL = `${AUTH_MODULE_URL}/sign-up`;
 const SIGN_IN_API_URL = `${AUTH_MODULE_URL}/sign-in`;
 
 const NURSE_MODUL_URL = `${SENICARE_API_DOMAIN}/api/v1/nurse`;
+const GET_NURSE_LIST_API_URL = `${NURSE_MODUL_URL}`;
 const GET_SIGN_IN_API_URL = `${NURSE_MODUL_URL}/sign-in`;
 
 const TOOL_MODULE_URL = `${SENICARE_API_DOMAIN}/api/v1/tool`;
@@ -29,7 +32,9 @@ const PATCH_TOOL_API_URL = (toolNumber: number | string) => `${TOOL_MODULE_URL}/
 const DELETE_TOOL_API_URL = (toolNumber: number | string) => `${TOOL_MODULE_URL}/${toolNumber}`;
 
 const CUSTOMER_MODULE_URL = `${SENICARE_API_DOMAIN}/api/v1/customer`;
+const POST_CUSTOMER_API_URL = `${CUSTOMER_MODULE_URL}`;
 const CUSTOMER_LIST_API_URL = `${CUSTOMER_MODULE_URL}`;
+const GET_CUSTOMER_API_URL = (customerNumber: number | string) => `${CUSTOMER_MODULE_URL}/${customerNumber}`;
 const DELETE_CUSTOMER_API_URL = (customerNumber: number | string) => `${CUSTOMER_MODULE_URL}/${customerNumber}`;
 
 
@@ -89,6 +94,14 @@ export const signInRequest = async(requestBody: SignInRequestDto) => {
     return responseBody;
 };
 
+// function: get nurse list 요청 함수 //
+export const getNurseListRequest = async(accessToken: string) => {
+    const responseBody = await axios.get(GET_NURSE_LIST_API_URL, bearerAuthorization(accessToken))
+        .then(responseDataHandler<GetNurseListResponseDto>)
+        .catch(responseErrorHandler);
+    return responseBody;
+};
+
 // function: get sign in 요청 함수 //
 export const getSignInRequest = async(accessToken: string) => {
     const responseBody = await axios.get(GET_SIGN_IN_API_URL, bearerAuthorization(accessToken))
@@ -137,6 +150,22 @@ export const deleteToolRequest = async (toolNumber: number | string, accessToken
     return responseBody;
 };
 
+// function: post customer 요청 함수 //
+export const postCustomerRequest = async(requestBody:PostCustomerRequestDto, accessToken: string) => {
+    const responseBody = await axios.post(POST_CUSTOMER_API_URL, requestBody, bearerAuthorization(accessToken))
+        .then(responseDataHandler<ResponseDto>)
+        .catch(responseErrorHandler);
+    return responseBody; 
+}
+
+// function: get customer 요청 함수 //
+export const getCustomerRequest = async(customerNumber: number | string, accessToken: string) => {
+    const responseBody = await axios.get(GET_CUSTOMER_API_URL(customerNumber), bearerAuthorization(accessToken))
+        .then(responseDataHandler<GetCustomerResponseDto>)
+        .catch(responseErrorHandler);
+    return responseBody;
+}
+
 // function: get customer list 요청 함수 //
 export const getCustomerListRequest = async(accessToken: string) => {
     const responseBody = await axios.get(CUSTOMER_LIST_API_URL, bearerAuthorization(accessToken))
@@ -152,3 +181,15 @@ export const deleteCustomerRequest = async(customerNumber: number | string, acce
         .catch(responseErrorHandler);
     return responseBody;
 }
+
+const FILE_UPLOAD_URL = `${SENICARE_API_DOMAIN}/file/upload`;
+
+const multipart = {headers: {'Content-Type': 'multipart/form-data'}};
+
+// function: file upload 요청 함수 //
+export const fileUploadRequest = async(requestBody: FormData) => {
+    const url = await axios.post(FILE_UPLOAD_URL, requestBody, multipart)
+        .then(responseDataHandler<string>)
+        .catch(error => null);
+    return url;
+};

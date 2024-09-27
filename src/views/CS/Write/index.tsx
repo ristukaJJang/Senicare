@@ -1,7 +1,17 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
 import './style.css'
 import { Address, useDaumPostcodePopup } from 'react-daum-postcode';
 import { useSignInUserStore } from 'src/stores';
+import { usePagination } from 'src/hooks';
+import { useCookies } from 'react-cookie';
+import { ACCESS_TOKEN, CS_ABSOLUTE_PATH } from 'src/constants';
+import { fileUploadRequest, getNurseListRequest, postCustomerRequest } from 'src/apis';
+import { GetNurseListResponseDto } from 'src/apis/dto/response/nurse';
+import { ResponseDto } from 'src/apis/dto/response';
+import { nurse } from 'src/types';
+import Pagination from 'src/components/Pagination';
+import { useNavigate } from 'react-router';
+import { PostCustomerRequestDto } from 'src/apis/dto/request/customer';
 
 
 // variable: 기본 프로필 이미지 url //
@@ -15,6 +25,9 @@ export default function CSWrite() {
 
     // state: 이미지 입력 참조 //
     const imageInputRef = useRef<HTMLInputElement | null>(null);
+
+    // state: 쿠키 상태 //
+    const [cookies] = useCookies();
 
     // state: 프로필 미리보기 url 상태 //
     const [previewUrl, setPreviewUrl] = useState<string>(defaultProfileImageUrl);
@@ -31,6 +44,21 @@ export default function CSWrite() {
     const [address, setAddress] = useState<string>('');
     const [location, setLocation] = useState<string>('');
 
+    // state: 검색어 상태 //
+    const [searchWord, setSearchWord] = useState<string>('');
+
+    // state: 원본 리스트 상태 //
+    const [originalList, setOriginalList] = useState<nurse[]>([]);
+
+    // state: 페이징 관련 상태 //
+    const {
+        currentPage, totalPage, totalCount, viewList,
+        setTotalList, initViewList, ...paginationProps
+    } = usePagination<nurse>();
+
+    // function: navigator //
+    const navigator = useNavigate();
+
     // function: 다음 주소 검색 팝업 함수 //
     const daumPostCodePopup = useDaumPostcodePopup();
 
@@ -39,7 +67,40 @@ export default function CSWrite() {
         const {address, sigungu} = result;
         setAddress(address);
         setLocation(sigungu);
-        console.log(sigungu);
+    };
+
+    // function: get nurse list response 처리 함수 //
+    const getNurseListResponse = (responseBody: GetNurseListResponseDto | ResponseDto | null) => {
+        const message = 
+            !responseBody ? '서버에 문제가 있습니다.' :
+            responseBody.code === 'AF' ? '잘못된 접근입니다.' :
+            responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' : '';
+
+        const isSuccessed = responseBody !== null && responseBody.code === 'SU';
+        if(!isSuccessed) {
+            alert(message);
+            return;
+        }
+        const {nurses} = responseBody as GetNurseListResponseDto;
+        setTotalList(nurses);
+        setOriginalList(nurses);
+    };
+
+    // function: post customer response 처리 함수 //
+    const postCustomerResponse = (responseBody: ResponseDto | null) => {
+        const message = 
+            !responseBody ? '서버에 문제가 있습니다.' :
+            responseBody.code === 'DBE' ? '서버에 문제가 있습니다.' :
+            responseBody.code === 'VF' ? '모두 입력해주세요.' :
+            responseBody.code === 'NI' ? '존재하지 않는 요양사입니다.' :
+            responseBody.code === 'AF' ? '잘못된 접근입니다.' : '';
+
+        const isSuccessed = responseBody !== null && responseBody.code === 'SU';
+        if(!isSuccessed) {
+            alert(message);
+            return;
+        }
+        navigator(CS_ABSOLUTE_PATH);
     };
 
     // event handler: 프로필 이미지 클릭 이벤트 처리 //
@@ -96,6 +157,70 @@ export default function CSWrite() {
         setModalOpen(!modalOpen);
     };
 
+    // event handler: 검색어 변경 이벤트 처리 함수 //
+    const onSearchWordChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+        const {value} = event.target;
+        setSearchWord(value);
+    };
+
+    // event handler: 검색어 키다운 이벤트 처리 //
+    const onSearchWordKeydownHandler = (event: KeyboardEvent<HTMLInputElement>) => {
+        const {key} = event;
+        if (key === 'Enter') onSearchButtonClickHandler();
+    };
+
+    // event handler: 검색 버튼 클릭 이벤트 처리 //
+    const onSearchButtonClickHandler = () => {
+        const searchedNurseList = originalList.filter(nurse => nurse.name.includes(searchWord));
+        setTotalList(searchedNurseList);
+        initViewList(searchedNurseList);
+    };
+
+    // event handler: 요양사 선택 이벤트 처리 //
+    const onNurseSelectHandler = (nurse:nurse) => {
+        setCharger(nurse.nurseId);
+        setChargerName(nurse.name);
+        setModalOpen(false);
+    };
+
+    // event handler: 목록 버튼 클릭 이벤트 처리 //
+    const onListButtonClickHandler = () => {
+        navigator(CS_ABSOLUTE_PATH);
+    };
+
+    // event handler: 등록 버튼 클릭 이벤트 처리 //
+    const onPostClickHandler = async () => {
+        if(!name || !birth || !charger || !address || !location) return;
+
+        const accessToken = cookies[ACCESS_TOKEN];
+        if(!accessToken) return;
+
+        let url: string | null = defaultProfileImageUrl;
+        if(profileImageFile) {
+            const formData = new FormData();
+            formData.append('file', profileImageFile);
+            url = await fileUploadRequest(formData);
+        }
+        url = url ? url : defaultProfileImageUrl;
+
+        const requestBody: PostCustomerRequestDto = {
+            profileImage: url,
+            name,
+            birth,
+            charger,
+            address,
+            location
+        };
+        postCustomerRequest(requestBody, accessToken).then(postCustomerResponse);
+    };
+
+    // effect: 첫 로드시에 요양사 리스트 불러오기 함수 //
+    useEffect(() => {
+        const accessToken = cookies[ACCESS_TOKEN];
+        if(!accessToken) return;
+        getNurseListRequest(accessToken).then(getNurseListResponse);
+    }, []);
+
     // effect: 모달 오픈 상태가 바뀔 시 스크롤 여부 함수 //
     useEffect(() => {
         document.body.style.overflow = modalOpen ? 'hidden' : 'auto';
@@ -145,18 +270,19 @@ export default function CSWrite() {
             </div>
 
             <div className='bottom'>
-                <div className='button primary'>목록</div>
-                <div className='button second'>등록</div>
+                <div className='button primary' onClick={onListButtonClickHandler}>목록</div>
+                <div className='button second' onClick={onPostClickHandler}>등록</div>
             </div>
 
             {modalOpen &&
                 <div className='modal'>
                     <div className='modal-box'>
+
                         <div className='modal-top'>
                             <div className='modal-label'>담당자 이름</div>
                             <div className='modal-input-box'>
-                                <input className='modal-input' placeholder='이름을 입력하세요.'/>
-                                <div className='button disable'>검색</div>
+                                <input className='modal-input' value={searchWord} placeholder='이름을 입력하세요.' onChange={onSearchWordChangeHandler} onKeyDown={onSearchWordKeydownHandler}/>
+                                <div className='button disable' onClick={onSearchButtonClickHandler} >검색</div>
                             </div>
                         </div>
 
@@ -168,13 +294,18 @@ export default function CSWrite() {
                                     <div className='td-nurse-tel-number'>전화번호</div>
                                 </div>
                                 
-                                <div className='tr'>
-                                    <div className='td-nurse-id'>ID</div>
-                                    <div className='td-nurse-name'>이름</div>
-                                    <div className='td-nurse-tel-number'>전화번호</div>
-                                </div>
-                            
+                                {viewList.map((nurse, index) => 
+                                    <div key={index} className='tr' onClick={() => onNurseSelectHandler(nurse)}>
+                                        <div className='td-nurse-id'>{nurse.nurseId}</div>
+                                        <div className='td-nurse-name'>{nurse.name}</div>
+                                        <div className='td-nurse-tel-number'>{nurse.telNumber}</div>
+                                    </div>
+                                )}
                             </div>
+                            <div className='modal-pagination-box'>
+                                <Pagination currentPage={currentPage} {...paginationProps}/>
+                            </div>
+                            
                         </div>
 
                         <div className='modal-bottom'>
@@ -186,7 +317,6 @@ export default function CSWrite() {
                 </div>
             }
             
-
         </div>   
     )
 }
