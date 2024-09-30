@@ -6,7 +6,7 @@ import { SignInResponseDto } from "./dto/response/auth";
 import { GetNurseListResponseDto, GetSignInResponseDto } from "./dto/response/nurse";
 import { PatchToolRequestDto, PostToolRequestDto } from "./dto/request/tool";
 import { GetToolListResponseDto, GetToolResponseDto } from "./dto/response/tool";
-import { PatchCustomerRequestDto, PostCustomerRequestDto } from "./dto/request/customer";
+import { PatchCustomerRequestDto, PostCareRecordRequestDto, PostCustomerRequestDto } from "./dto/request/customer";
 import { GetCareRecordListResponseDto, GetCustomerResponseDto } from "./dto/response/customer";
 
 // variable: api url 상수//
@@ -39,6 +39,7 @@ const PATCH_CUSTOMER_API_URL = (customerNumber: number | string) => `${CUSTOMER_
 const DELETE_CUSTOMER_API_URL = (customerNumber: number | string) => `${CUSTOMER_MODULE_URL}/${customerNumber}`;
 
 const GET_CARE_RECORD_LIST_API_URL = (customerNumber: number | string) => `${CUSTOMER_MODULE_URL}/${customerNumber}/care-records`;
+const POST_CARE_RECORD_API_URL = (customerNumber: number | string) => `${CUSTOMER_MODULE_URL}/${customerNumber}/care-record`;
 
 // function: Authorization Bearer 헤더값 //
 const bearerAuthorization = (accessToken: String) => ({headers: {'Authorization': `Bearer ${accessToken}`}});
@@ -200,6 +201,15 @@ export const getCareRecordListRequest = async(customerNumber: number | string, a
         .catch(responseErrorHandler);
     return responseBody;
 };
+
+// function: post care record 요청 함수 //
+export const postCareRecordRequest = async(requestBody: PostCareRecordRequestDto, customerNumber: number | string, accessToken: string) => {
+    const responseBody = await axios.post(POST_CARE_RECORD_API_URL(customerNumber), requestBody, bearerAuthorization(accessToken))
+        .then(responseDataHandler<ResponseDto>)
+        .catch(responseErrorHandler);
+    return responseBody;
+}
+
 
 const FILE_UPLOAD_URL = `${SENICARE_API_DOMAIN}/file/upload`;
 
