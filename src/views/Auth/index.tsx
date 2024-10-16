@@ -41,6 +41,7 @@ interface AuthComponentProps {
   onPathChange: (path: AuthPath) => void;
 }
 
+// component: 회원가입 화면 컴포넌트 //
 function SignUp({onPathChange}: AuthComponentProps) {
 
   // state: query parameter 상태 //
@@ -187,8 +188,6 @@ function SignUp({onPathChange}: AuthComponentProps) {
   const onPasswordCheckChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const {value} = event.target;
     setPasswordCheck(value);
-
-    
   };
 
   // event Handler: 전화번호 변경 이벤트 처리 //
@@ -199,6 +198,7 @@ function SignUp({onPathChange}: AuthComponentProps) {
     setTelNumberMessage('');
   };
 
+  // event handler: 전화번호 인증번호 변경 이벤트 핸들러 //
   const onAuthNumberChangeHandler = (evnet: ChangeEvent<HTMLInputElement>) => {
     const {value} = evnet.target;
     setAuthNumber(value);
